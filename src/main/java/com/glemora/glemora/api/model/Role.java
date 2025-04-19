@@ -4,23 +4,17 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
-@Data
 @Entity
-@Table(name = "categories")
-public class Category {
+@Data
+public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    @Column(nullable = false, unique = true)
     private String name;
-
-    private String DisplayName;
-
-    private String Image;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -38,5 +32,4 @@ public class Category {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }

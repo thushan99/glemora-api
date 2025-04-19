@@ -1,65 +1,48 @@
 package com.glemora.glemora.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-//import com.thecodereveal.shopease.auth.entities.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name="orders")
+@Table(name = "orders")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Order {
-
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date orderDate;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id",nullable = false)
-//    @JsonIgnore
-//    private User user;
+    @Column(name = "order_date")
+    private LocalDateTime orderDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "address_id",nullable = false)
-    @ToString.Exclude
-    @JsonIgnore
-    private Address address;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_address_id", nullable = false)
+    private UserAddress shippingAddress;
 
-    @Column(nullable = false)
-    private Double totalAmount;
+    @Column(name = "shipping_method")
+    private String shippingMethod;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OrderStatus orderStatus;
-
-    @Column(nullable = false)
+    @Column(name = "payment_method")
     private String paymentMethod;
 
-    @Column(nullable = true)
-    private String shipmentTrackingNumber;
+    @Column(nullable = false)
+    private Double subtotal;
 
-    @Column(nullable = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expectedDeliveryDate;
+    @Column(nullable = false)
+    private Double tax;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "order",cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private List<OrderItem> orderItemList;
+    @Column(nullable = false)
+    private Double total;
 
-    private Double discount;
+    private String notes;
 
-    @OneToOne(fetch = FetchType.LAZY,mappedBy = "order",cascade = CascadeType.ALL)
-    @ToString.Exclude
-    private Payment payment;
-
+    @PrePersist
+    protected void onCreate() {
+        this.orderDate = LocalDateTime.now();
+    }
 }
