@@ -1,7 +1,7 @@
 package com.glemora.glemora.api.controller;
 
 import com.glemora.glemora.api.model.Category;
-import com.glemora.glemora.api.service.Impl.CategoryService;
+import com.glemora.glemora.api.service.Impl.CategoryServiceImpl;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,18 +16,18 @@ import java.util.List;
 public class CategoryController {
 
     @Autowired
-    private CategoryService categoryService;
+    private CategoryServiceImpl categoryServiceImpl;
 
     @RolesAllowed({"ADMIN", "USER"})
     @GetMapping(headers = "X-Api-Version=v1")
     public List<Category> getAllCategories() {
-        return categoryService.getAllCategories();
+        return categoryServiceImpl.getAllCategories();
     }
 
     @RolesAllowed({"ADMIN", "USER"})
     @GetMapping(value = "/{id}", headers = "X-Api-Version=v1")
     public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
-        return categoryService.getCategoryById(id)
+        return categoryServiceImpl.getCategoryById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -43,7 +43,7 @@ public class CategoryController {
         category.setName(name);
         category.setDisplayName(displayName);
 
-        return categoryService.saveCategory(category, image);
+        return categoryServiceImpl.saveCategory(category, image);
     }
 
     @RolesAllowed({"ADMIN"})
@@ -59,13 +59,13 @@ public class CategoryController {
         category.setName(name);
         category.setDisplayName(displayName);
 
-        return ResponseEntity.ok(categoryService.updateCategory(category, image));
+        return ResponseEntity.ok(categoryServiceImpl.updateCategory(category, image));
     }
 
     @RolesAllowed({"ADMIN"})
     @DeleteMapping(value = "/{id}", headers = "X-Api-Version=v1")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+        categoryServiceImpl.deleteCategory(id);
         return ResponseEntity.ok().build();
     }
 }

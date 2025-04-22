@@ -1,13 +1,18 @@
+// Order.java
 package com.glemora.glemora.api.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "orders")
 @Data
+@EqualsAndHashCode(exclude = {"user", "shippingAddress"})
+@ToString(exclude = {"user", "shippingAddress"})
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

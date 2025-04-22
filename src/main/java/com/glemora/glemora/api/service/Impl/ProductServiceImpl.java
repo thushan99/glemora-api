@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class ProductService {
+public class ProductServiceImpl {
 
     private ProductRepository productRepository;
     private final Cloudinary cloudinary;
@@ -54,7 +54,6 @@ public class ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        // Update fields
         existingProduct.setName(name);
         existingProduct.setDescription(description);
         existingProduct.setPrice(price);
@@ -66,10 +65,7 @@ public class ProductService {
             existingProduct.setStockQuantity(stockQuantity);
         }
 
-        if (imageFile.isEmpty())
-            existingProduct.setImage("N/A");
-
-        else {
+        if (imageFile != null && !imageFile.isEmpty()){
             String productPic = cloudinary.uploader()
                     .upload(imageFile.getBytes(),
                             Map.of("public_id", UUID.randomUUID().toString()))

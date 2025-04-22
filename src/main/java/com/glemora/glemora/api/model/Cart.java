@@ -1,3 +1,4 @@
+// Cart.java
 package com.glemora.glemora.api.model;
 
 import jakarta.persistence.*;
@@ -13,18 +14,21 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(name = "order_tracking_number")
+    private String orderTrackingNumber;
+
+    @Enumerated(EnumType.STRING)
+    private CartStatus status = CartStatus.ACTIVE;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-//    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private Set<CartItem> items = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {

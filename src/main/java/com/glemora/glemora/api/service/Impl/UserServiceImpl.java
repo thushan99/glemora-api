@@ -49,9 +49,9 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = new User();
-        Long empIdCount = userRepository.count() + 1;
-//        String empId = String.format("E%03d", empIdCount);
-//        user.setEmployeeId(empId);
+//        Long empIdCount = userRepository.count() + 1;
+////        String empId = String.format("E%03d", empIdCount);
+////        user.setEmployeeId(empId);
         user.setName(userAuthRequestDTO.getName());
         user.setUsername(userAuthRequestDTO.getUsername());
         user.setPassword(applicationConfig.passwordEncoder().encode(userAuthRequestDTO.getPassword()));
@@ -144,10 +144,8 @@ public class UserServiceImpl implements UserService {
         updateUser.setName(userUpdateRequestDTO.getName());
         updateUser.setUsername(userUpdateRequestDTO.getUsername());
         updateUser.setRoles(user.getRoles());
-//        updateUser.setEmployeeId(user.getEmployeeId());
         updateUser.setEmail(user.getEmail());
         updateUser.setPassword(user.getPassword());
-
         updateUser.setId(user.getId());
         userRepository.save(updateUser);
 

@@ -3,7 +3,7 @@ package com.glemora.glemora.api.controller;
 import com.glemora.glemora.api.model.Category;
 import com.glemora.glemora.api.model.Product;
 import com.glemora.glemora.api.repository.CategoryRepository;
-import com.glemora.glemora.api.service.Impl.ProductService;
+import com.glemora.glemora.api.service.Impl.ProductServiceImpl;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,19 +18,19 @@ import java.util.List;
 @AllArgsConstructor
 public class ProductController {
 
-    private ProductService productService;
+    private ProductServiceImpl productServiceImpl;
     private CategoryRepository categoryRepository;
 
     @RolesAllowed({"ADMIN", "USER"})
     @GetMapping(headers = "X-Api-Version=v1")
     public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+        return productServiceImpl.getAllProducts();
     }
 
     @RolesAllowed({"ADMIN", "USER"})
     @GetMapping(value = "/{id}", headers = "X-Api-Version=v1")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        return productService.getProductById(id)
+        return productServiceImpl.getProductById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -59,7 +59,7 @@ public class ProductController {
         product.setFeatured(featured != null && featured);
         product.setStockQuantity(stockQuantity);
 
-        return productService.saveProduct(product, image);
+        return productServiceImpl.saveProduct(product, image);
     }
 
     @RolesAllowed({"ADMIN"})
@@ -78,14 +78,14 @@ public class ProductController {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + categoryId));
 
-        return ResponseEntity.ok(productService.updateProduct(id, name, description, price,
+        return ResponseEntity.ok(productServiceImpl.updateProduct(id, name, description, price,
                 category, sale, featured, image, stockQuantity));
     }
 
     @RolesAllowed({"ADMIN"})
     @DeleteMapping(value = "/{id}", headers = "X-Api-Version=v1")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+        productServiceImpl.deleteProduct(id);
         return ResponseEntity.ok().build();
     }
 }
