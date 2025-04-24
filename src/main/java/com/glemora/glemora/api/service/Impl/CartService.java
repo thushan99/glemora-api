@@ -1,7 +1,7 @@
 package com.glemora.glemora.api.service.Impl;
 
-import com.glemora.glemora.api.dto.CartDTO;
-import com.glemora.glemora.api.dto.CartItemDTO;
+import com.glemora.glemora.api.controller.request.CartDTO;
+import com.glemora.glemora.api.controller.request.CartItemDTO;
 import com.glemora.glemora.api.exception.ActiveCartNotFoundException;
 import com.glemora.glemora.api.exception.CartItemNotFoundException;
 import com.glemora.glemora.api.exception.ProductNotFoundException;

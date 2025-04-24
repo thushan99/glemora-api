@@ -1,7 +1,7 @@
 package com.glemora.glemora.api.controller;
 
-import com.glemora.glemora.api.dto.OrderDTO;
-import com.glemora.glemora.api.dto.OrderRequest;
+import com.glemora.glemora.api.controller.request.OrderDTO;
+import com.glemora.glemora.api.controller.request.OrderRequest;
 import com.glemora.glemora.api.exception.ActiveCartNotFoundException;
 import com.glemora.glemora.api.exception.OrderNotFoundException;
 import com.glemora.glemora.api.exception.UserNotFoundException;

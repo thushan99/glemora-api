@@ -1,4 +1,4 @@
-package com.glemora.glemora.api.dto;
+package com.glemora.glemora.api.controller.request;
 
 import lombok.Data;
 

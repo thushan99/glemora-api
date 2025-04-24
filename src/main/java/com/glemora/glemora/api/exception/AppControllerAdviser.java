@@ -11,10 +11,8 @@ public class AppControllerAdviser {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({UserAlreadyRegisteredException.class})
-    public MessageResponse handleNFException(Exception exception){
-        MessageResponse messageResponse = MessageResponse.builder()
-                .message(exception.getMessage())
-                .build();
+    public MessageResponse handleNFException(Exception exception) {
+        MessageResponse messageResponse = MessageResponse.builder().message(exception.getMessage()).build();
 
         return messageResponse;
     }
