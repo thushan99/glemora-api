@@ -3,10 +3,13 @@ package com.glemora.glemora.api.controller;
 import java.io.IOException;
 import java.util.Map;
 
+import com.glemora.glemora.api.controller.response.TryOnUserProductResponse;
 import com.glemora.glemora.api.service.Impl.VirtualTryOnServiceImpl;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,12 +44,18 @@ public class VirtualTryOnController {
 
         log.info("Received file uploads for try-on: person image size: {}, garment image size: {}", personImage.getSize(), garmentImage.getSize());
 
-        // Upload and resize images
         Map<String, String> uploadedImages = virtualTryOnService.uploadAndResizeImages(personImage, garmentImage);
-
-        // Process try-on
         TryOnResponse response = virtualTryOnService.tryOnGarment(uploadedImages.get("personImageUrl"), uploadedImages.get("garmentImageUrl"));
+        return ResponseEntity.ok(response);
+    }
 
+    @PostMapping(value = "/user-product", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RolesAllowed({"USER", "ADMIN"})
+    public ResponseEntity<TryOnUserProductResponse> tryOnProductWithUserImage(@RequestParam("userImage") MultipartFile userImage, @RequestParam("productId") Long productId, @AuthenticationPrincipal UserDetails userDetails) throws IOException {
+
+        log.info("Received user image upload for product try-on: user image size: {}, product id: {}", userImage.getSize(), productId);
+
+        TryOnUserProductResponse response = virtualTryOnService.tryOnProductWithUserImage(userImage, productId, userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 }

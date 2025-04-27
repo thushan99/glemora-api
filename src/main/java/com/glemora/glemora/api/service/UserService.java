@@ -1,9 +1,7 @@
 package com.glemora.glemora.api.service;
 
 
-import com.glemora.glemora.api.controller.request.UserAuthRequestDTO;
-import com.glemora.glemora.api.controller.request.UserLoginRequest;
-import com.glemora.glemora.api.controller.request.UserUpdateRequestDTO;
+import com.glemora.glemora.api.controller.request.*;
 import com.glemora.glemora.api.controller.response.UserLoginResponseDTO;
 import com.glemora.glemora.api.exception.UserAlreadyRegisteredException;
 import com.glemora.glemora.api.exception.UserNotFoundException;
@@ -23,4 +21,11 @@ public interface UserService {
     User getById(String username);
 
     User update(String username, UserUpdateRequestDTO userUpdateRequestDTO) throws IOException;
+
+    void updateUser(Long userId, AdminUserUpdateRequestDTO adminUserUpdateRequestDTO) throws IOException, UserNotFoundException;
+
+    void deleteUser(Long userId) throws UserNotFoundException;
+
+    void updateUserRole(Long userId, UserRoleUpdateRequest roleUpdateRequest) throws UserNotFoundException;
+
 }

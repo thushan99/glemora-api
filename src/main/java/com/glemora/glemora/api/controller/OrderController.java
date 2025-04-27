@@ -5,6 +5,7 @@ import com.glemora.glemora.api.controller.request.OrderRequest;
 import com.glemora.glemora.api.exception.ActiveCartNotFoundException;
 import com.glemora.glemora.api.exception.OrderNotFoundException;
 import com.glemora.glemora.api.exception.UserNotFoundException;
+import com.glemora.glemora.api.model.OrderStatus;
 import com.glemora.glemora.api.service.Impl.OrderService;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,8 @@ public class OrderController {
             @PathVariable Long orderId,
             @RequestParam String status
     ) throws OrderNotFoundException {
-        orderService.updateOrderStatus(orderId, status);
+        OrderStatus orderStatus = OrderStatus.valueOf(status);
+        orderService.updateOrderStatus(orderId, orderStatus);
         return ResponseEntity.ok().build();
     }
 
@@ -62,5 +64,12 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable Long orderId) throws OrderNotFoundException {
         orderService.deleteOrder(orderId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/all",headers = "X-Api-Version=v1")
+    @RolesAllowed({"ADMIN"})
+    public ResponseEntity<List<OrderDTO>> getAllOrders() throws UserNotFoundException {
+        List<OrderDTO> orders = orderService.getOrders();
+        return ResponseEntity.ok(orders);
     }
 }

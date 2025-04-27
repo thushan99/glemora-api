@@ -26,6 +26,9 @@ public class Product {
 
     private String image;
 
+    @Column(name = "png_try_on_image")
+    private String pngTryOnImage;
+
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity = 0;
 

@@ -1,5 +1,6 @@
 package com.glemora.glemora.api.controller.request;
 
+import com.glemora.glemora.api.model.OrderStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,5 +19,6 @@ public class OrderDTO {
     private Double tax;
     private Double total;
     private String notes;
+    private OrderStatus status;
     private List<OrderItemDTO> items;
 }

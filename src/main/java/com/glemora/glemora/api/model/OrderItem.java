@@ -1,4 +1,3 @@
-// OrderItem.java
 package com.glemora.glemora.api.model;
 
 import jakarta.persistence.*;

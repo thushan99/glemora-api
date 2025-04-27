@@ -30,25 +30,13 @@ public class ProductController {
     @RolesAllowed({"ADMIN", "USER"})
     @GetMapping(value = "/{id}", headers = "X-Api-Version=v1")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        return productServiceImpl.getProductById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return productServiceImpl.getProductById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping(headers = "X-Api-Version=v1")
     @RolesAllowed({"ADMIN"})
-    public Product createProduct(
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("price") Double price,
-            @RequestParam("category") Long categoryId,
-            @RequestParam(value = "sale", required = false) Boolean sale,
-            @RequestParam(value = "featured", required = false) Boolean featured,
-            @RequestParam(value = "image", required = false) MultipartFile image,
-            @RequestParam(value = "stockQuantity", required = false, defaultValue = "0") Integer stockQuantity
-    ) throws IOException {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + categoryId));
+    public Product createProduct(@RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("price") Double price, @RequestParam("category") Long categoryId, @RequestParam(value = "sale", required = false) Boolean sale, @RequestParam(value = "featured", required = false) Boolean featured, @RequestParam(value = "image", required = false) MultipartFile image, @RequestParam(value = "pngTryOnImage", required = false) MultipartFile pngTryOnImage, @RequestParam(value = "stockQuantity", required = false, defaultValue = "0") Integer stockQuantity) throws IOException {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + categoryId));
 
         Product product = new Product();
         product.setName(name);
@@ -59,27 +47,15 @@ public class ProductController {
         product.setFeatured(featured != null && featured);
         product.setStockQuantity(stockQuantity);
 
-        return productServiceImpl.saveProduct(product, image);
+        return productServiceImpl.saveProduct(product, image, pngTryOnImage);
     }
 
     @RolesAllowed({"ADMIN"})
     @PutMapping(value = "/{id}", headers = "X-Api-Version=v1")
-    public ResponseEntity<Product> updateProduct(
-            @PathVariable Long id,
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("price") Double price,
-            @RequestParam("category") Long categoryId,
-            @RequestParam(value = "sale", required = false) Boolean sale,
-            @RequestParam(value = "featured", required = false) Boolean featured,
-            @RequestParam(value = "image", required = false) MultipartFile image,
-            @RequestParam(value = "stockQuantity", required = false) Integer stockQuantity
-    ) throws IOException {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + categoryId));
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestParam("name") String name, @RequestParam("description") String description, @RequestParam("price") Double price, @RequestParam("category") Long categoryId, @RequestParam(value = "sale", required = false) Boolean sale, @RequestParam(value = "featured", required = false) Boolean featured, @RequestParam(value = "image", required = false) MultipartFile image, @RequestParam(value = "pngTryOnImage", required = false) MultipartFile pngTryOnImage, @RequestParam(value = "stockQuantity", required = false) Integer stockQuantity) throws IOException {
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + categoryId));
 
-        return ResponseEntity.ok(productServiceImpl.updateProduct(id, name, description, price,
-                category, sale, featured, image, stockQuantity));
+        return ResponseEntity.ok(productServiceImpl.updateProduct(id, name, description, price, category, sale, featured, image, pngTryOnImage, stockQuantity));
     }
 
     @RolesAllowed({"ADMIN"})

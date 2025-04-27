@@ -8,10 +8,12 @@ import com.glemora.glemora.api.exception.OrderNotFoundException;
 import com.glemora.glemora.api.exception.UserNotFoundException;
 import com.glemora.glemora.api.model.*;
 import com.glemora.glemora.api.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,16 +30,14 @@ public class OrderService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public OrderDTO createOrder(String username, OrderRequest orderRequest)
-            throws UserNotFoundException, ActiveCartNotFoundException {
+    public OrderDTO createOrder(String username, OrderRequest orderRequest) throws UserNotFoundException, ActiveCartNotFoundException {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new UserNotFoundException("User not found with username: " + username);
         }
 
         // Get active cart
-        Cart cart = cartRepository.findByUserAndStatus(user, CartStatus.ACTIVE)
-                .orElseThrow(() -> new ActiveCartNotFoundException("No active cart found for user: " + username));
+        Cart cart = cartRepository.findByUserAndStatus(user, CartStatus.ACTIVE).orElseThrow(() -> new ActiveCartNotFoundException("No active cart found for user: " + username));
 
         // Get cart items
         List<CartItem> cartItems = cartItemRepository.findByCart(cart);
@@ -58,9 +58,7 @@ public class OrderService {
         order.setNotes(orderRequest.getNotes());
 
         // Calculate totals
-        double subtotal = cartItems.stream()
-                .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
-                .sum();
+        double subtotal = cartItems.stream().mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity()).sum();
 
         double tax = subtotal * 0.1; // 10% tax rate
         double total = subtotal + tax + orderRequest.getShippingCost();
@@ -107,25 +105,20 @@ public class OrderService {
         }
 
         List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
-        return orders.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return orders.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public OrderDTO getOrderById(String username, Long orderId)
-            throws UserNotFoundException, OrderNotFoundException {
+    public OrderDTO getOrderById(String username, Long orderId) throws UserNotFoundException, OrderNotFoundException {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new UserNotFoundException("User not found with username: " + username);
         }
 
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
 
         // Verify the order belongs to the user (unless admin)
-        if (!order.getUser().getId().equals(user.getId()) &&
-                !user.getRoles().stream().anyMatch(role -> "ADMIN".equals(role.getName()))) {
+        if (!order.getUser().getId().equals(user.getId()) && !user.getRoles().stream().anyMatch(role -> "ADMIN".equals(role.getName()))) {
             throw new OrderNotFoundException("Order not found for user");
         }
 
@@ -133,20 +126,15 @@ public class OrderService {
     }
 
     @Transactional
-    public void updateOrderStatus(Long orderId, String status) throws OrderNotFoundException {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
-
-        // Update order status logic here
-        // This would depend on your specific requirements
-
+    public void updateOrderStatus(Long id, OrderStatus status) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
+        order.setStatus(status);
         orderRepository.save(order);
     }
 
     @Transactional
     public void deleteOrder(Long orderId) throws OrderNotFoundException {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + orderId));
 
         orderItemRepository.deleteByOrder(order);
         orderRepository.delete(order);
@@ -183,18 +171,11 @@ public class OrderService {
 
         // Add shipping address
         UserAddress address = order.getShippingAddress();
-        dto.setShippingAddress(address.getAddressLine1() +
-                (address.getAddressLine2() != null ? ", " + address.getAddressLine2() : "") +
-                ", " + address.getCity() +
-                ", " + address.getState() +
-                ", " + address.getPostalCode() +
-                ", " + address.getCountry());
+        dto.setShippingAddress(address.getAddressLine1() + (address.getAddressLine2() != null ? ", " + address.getAddressLine2() : "") + ", " + address.getCity() + ", " + address.getState() + ", " + address.getPostalCode() + ", " + address.getCountry());
 
         // Add order items
         List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
-        List<OrderItemDTO> orderItemDTOs = orderItems.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        List<OrderItemDTO> orderItemDTOs = orderItems.stream().map(this::convertToDTO).collect(Collectors.toList());
 
         dto.setItems(orderItemDTOs);
 
@@ -211,4 +192,20 @@ public class OrderService {
         dto.setQuantity(orderItem.getQuantity());
         return dto;
     }
+
+    @Transactional(readOnly = true)
+    public List<OrderDTO> getOrders() {
+        List<Order> orders = orderRepository.findAllByOrderByOrderDateDesc();
+        List<OrderDTO> orderDTOs = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderDTO dto = convertToDTO(order); // Your existing method for all fields
+            dto.setStatus(order.getStatus());   // Manually override/set only the status field
+            orderDTOs.add(dto);
+        }
+
+        return orderDTOs;
+    }
+
+
 }

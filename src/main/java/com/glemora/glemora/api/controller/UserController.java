@@ -1,8 +1,6 @@
 package com.glemora.glemora.api.controller;
 
-import com.glemora.glemora.api.controller.request.UserAuthRequestDTO;
-import com.glemora.glemora.api.controller.request.UserLoginRequest;
-import com.glemora.glemora.api.controller.request.UserUpdateRequestDTO;
+import com.glemora.glemora.api.controller.request.*;
 import com.glemora.glemora.api.controller.response.MessageResponse;
 import com.glemora.glemora.api.controller.response.UserLoginResponseDTO;
 import com.glemora.glemora.api.controller.response.UserResponse;
@@ -29,20 +27,14 @@ public class UserController {
 
     private UserService userService;
 
-    @PostMapping(value = "/sign-up",headers = "X-Api-Version=v1")
+    @PostMapping(value = "/sign-up", headers = "X-Api-Version=v1")
     public ResponseEntity<UserLoginResponseDTO> authenticate(@RequestBody UserAuthRequestDTO userAuthRequestDTO) throws UserAlreadyRegisteredException {
-
         UserLoginResponseDTO userLoginResponseDTO = userService.create(userAuthRequestDTO);
-        MessageResponse messageResponse = MessageResponse.builder()
-                .message("User Registered successfully!")
-                .build();
-
         return new ResponseEntity<>(userLoginResponseDTO, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/sign-in",headers = "X-Api-Version=v1")
-    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequest userLoginRequest) throws  UserNotFoundException {
-
+    @PostMapping(value = "/sign-in", headers = "X-Api-Version=v1")
+    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequest userLoginRequest) throws UserNotFoundException {
         UserLoginResponseDTO userLoginResponseDTO = userService.login(userLoginRequest);
         return new ResponseEntity<>(userLoginResponseDTO, HttpStatus.OK);
     }
@@ -50,50 +42,61 @@ public class UserController {
     @RolesAllowed("ADMIN")
     @GetMapping(value = "/employees", headers = "X-Api-Version=v1")
     public List<User> getEmployees() {
-
         return userService.getAll();
     }
 
     @RolesAllowed({"ADMIN", "USER"})
     @GetMapping(value = "/me", headers = "X-Api-Version=v1")
     public ResponseEntity<UserResponse> getMe(@AuthenticationPrincipal UserDetails userDetails) {
-
         User user = userService.getById(userDetails.getUsername());
 
-        return ResponseEntity.ok(new UserResponse(
-                user.getUsername(),
-                user.getName(),
-                user.getEmail(),
-                user.getProfilePic())
-        );
+        return ResponseEntity.ok(new UserResponse(user.getUsername(), user.getName(), user.getEmail(), user.getProfilePic()));
     }
 
     @RolesAllowed({"ADMIN", "USER"})
     @PutMapping(value = "/update-me", headers = "X-Api-Version=v1")
-    public ResponseEntity<String> updateMe(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute UserUpdateRequestDTO userUpdateRequestDTO) throws IOException {
-
+    public ResponseEntity<MessageResponse> updateMe(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute UserUpdateRequestDTO userUpdateRequestDTO) throws IOException {
         userService.update(userDetails.getUsername(), userUpdateRequestDTO);
-        return ResponseEntity.ok("Updated Successfully");
+        return ResponseEntity.ok(MessageResponse.builder().message("Updated Successfully").build());
     }
 
     @RolesAllowed("ADMIN")
-    @GetMapping("/admin")
-    public String sayHiAdmin() {
-
-        return "Hi Admin";
+    @PutMapping(value = "/users/{userId}", headers = "X-Api-Version=v1")
+    public ResponseEntity<MessageResponse> updateUser(@PathVariable Long userId, @ModelAttribute AdminUserUpdateRequestDTO adminUserUpdateRequestDTO) throws IOException, UserNotFoundException {
+        userService.updateUser(userId, adminUserUpdateRequestDTO);
+        return ResponseEntity.ok(MessageResponse.builder().message("User updated successfully").build());
     }
 
-    @RolesAllowed("USER")
-    @GetMapping("/user")
-    public String sayHiUser() {
-
-        return "Hi User";
+    @RolesAllowed("ADMIN")
+    @DeleteMapping(value = "/users/{userId}", headers = "X-Api-Version=v1")
+    public ResponseEntity<MessageResponse> deleteUser(@PathVariable Long userId) throws UserNotFoundException {
+        userService.deleteUser(userId);
+        return ResponseEntity.ok(MessageResponse.builder().message("User deleted successfully").build());
     }
 
-    @RolesAllowed({"ADMIN", "USER"})
-    @GetMapping("/user-admin")
-    public String sayHiUserAndAdmin() {
+    @RolesAllowed("ADMIN")
+    @PutMapping(value = "/users/{userId}/role", headers = "X-Api-Version=v1")
+    public ResponseEntity<MessageResponse> updateUserRole(@PathVariable Long userId, @RequestBody UserRoleUpdateRequest roleUpdateRequest) throws UserNotFoundException {
 
-        return "Hi User And Admin";
+        userService.updateUserRole(userId, roleUpdateRequest);
+        return ResponseEntity.ok(MessageResponse.builder().message("User role updated successfully").build());
     }
+
+//    @RolesAllowed("ADMIN")
+//    @GetMapping("/admin")
+//    public String sayHiAdmin() {
+//        return "Hi Admin";
+//    }
+//
+//    @RolesAllowed("USER")
+//    @GetMapping("/user")
+//    public String sayHiUser() {
+//        return "Hi User";
+//    }
+//
+//    @RolesAllowed({"ADMIN", "USER"})
+//    @GetMapping("/user-admin")
+//    public String sayHiUserAndAdmin() {
+//        return "Hi User And Admin";
+//    }
 }

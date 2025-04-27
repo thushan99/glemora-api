@@ -1,4 +1,3 @@
-// Order.java
 package com.glemora.glemora.api.model;
 
 import jakarta.persistence.*;
@@ -25,6 +24,10 @@ public class Order {
     @Column(name = "order_date")
     private LocalDateTime orderDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status")
+    private OrderStatus status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipping_address_id", nullable = false)
     private UserAddress shippingAddress;
@@ -49,5 +52,9 @@ public class Order {
     @PrePersist
     protected void onCreate() {
         this.orderDate = LocalDateTime.now();
+        if (this.status == null) {
+            this.status = OrderStatus.PENDING;
+        }
     }
+
 }

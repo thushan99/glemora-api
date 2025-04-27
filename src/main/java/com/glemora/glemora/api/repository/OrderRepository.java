@@ -9,4 +9,8 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserOrderByOrderDateDesc(User user);
+    void deleteByUserId(Long userId);
+    List<Order> findByUserId(Long userId);
+    List<Order> findAllByOrderByOrderDateDesc();
+
 }

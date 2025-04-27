@@ -21,6 +21,9 @@ public class VirtualTryOnImage {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "uploaded_image_path", nullable = false)
+    private String uploadImagePath;
+
     @Column(name = "generated_image_path", nullable = false)
     private String generatedImagePath;
 

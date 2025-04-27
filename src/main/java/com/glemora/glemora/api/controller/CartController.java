@@ -27,33 +27,21 @@ public class CartController {
 
     @PostMapping(headers = "X-Api-Version=v1")
     @RolesAllowed({"USER", "ADMIN"})
-    public ResponseEntity<CartDTO> addToCart(
-            Authentication authentication,
-            @RequestParam Long productId,
-            @RequestParam Integer quantity,
-            @RequestParam(required = false, defaultValue = "M") String size
-    ) throws UserNotFoundException, ProductNotFoundException {
+    public ResponseEntity<CartDTO> addToCart(Authentication authentication, @RequestParam Long productId, @RequestParam Integer quantity, @RequestParam(required = false, defaultValue = "M") String size) throws UserNotFoundException, ProductNotFoundException {
         CartDTO cart = cartService.addToCart(authentication.getName(), productId, quantity, size);
         return ResponseEntity.ok(cart);
     }
 
     @PutMapping(value = "/items/{itemId}", headers = "X-Api-Version=v1")
     @RolesAllowed({"USER", "ADMIN"})
-    public ResponseEntity<CartDTO> updateCartItem(
-            Authentication authentication,
-            @PathVariable Long itemId,
-            @RequestParam Integer quantity
-    ) throws UserNotFoundException, CartItemNotFoundException, ActiveCartNotFoundException {
+    public ResponseEntity<CartDTO> updateCartItem(Authentication authentication, @PathVariable Long itemId, @RequestParam Integer quantity) throws UserNotFoundException, CartItemNotFoundException, ActiveCartNotFoundException {
         CartDTO cart = cartService.updateCartItem(authentication.getName(), itemId, quantity);
         return ResponseEntity.ok(cart);
     }
 
     @DeleteMapping(value = "/items/{itemId}", headers = "X-Api-Version=v1")
     @RolesAllowed({"USER", "ADMIN"})
-    public ResponseEntity<Void> removeCartItem(
-            Authentication authentication,
-            @PathVariable Long itemId
-    ) throws UserNotFoundException, CartItemNotFoundException, ActiveCartNotFoundException {
+    public ResponseEntity<Void> removeCartItem(Authentication authentication, @PathVariable Long itemId) throws UserNotFoundException, CartItemNotFoundException, ActiveCartNotFoundException {
         cartService.removeCartItem(authentication.getName(), itemId);
         return ResponseEntity.ok().build();
     }
