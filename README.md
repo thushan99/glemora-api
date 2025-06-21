@@ -1,4 +1,4 @@
-# lemora-api
+# glemora-api
 
 https://www.pixelcut.ai/developer-settings/usage
 
